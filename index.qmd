@@ -251,11 +251,13 @@ print(shipments_with_lateness[['shipID', 'plannedShipDate', 'actualShipDate', 'i
 
 **Question 1: Data Types and Date Handling**
 - What is the `dtype` of the `actualShipDate` series? How can you find out using code?
+this is a date type
 - Why is it important that both `actualShipDate` and `plannedShipDate` have the same data type for comparison?
+because if they are not the same data type, the comparison will not work.
 
 **Question 2: String vs Date Comparison**
 - Can you give an example where comparing two dates as strings would yield unintuitive results, e.g. what happens if you try to compare "04-11-2025" and "05-20-2024" as strings vs as dates?
-
+if you compare them as strings, the result will be "04-11-2025" > "05-20-2024", which is not correct.
 **Question 3: Debug This Code**
 ```python
 # This code has an error - can you spot it?
@@ -268,9 +270,12 @@ shipments_with_lateness = (
     )
 )
 ```
-What's wrong with the `lateStatement` assignment and how would you fix it?
-:::
-
+What's wrong with the `lateStatement` assignment and how would you fix it?:::
+the lateStatement is not being assigned correctly because the if statement is not being executed.
+to fix it, you can use the following code:
+```python
+lateStatement = "Darn Shipment is Late" if shipments_df['is_late'] else "Shipment is on Time"
+```
 ::: {.callout-tip}
 ## Your Answer: Data Types and Date Handling
 *Replace this with your answer to Question 1.*
@@ -321,10 +326,15 @@ print(late_shipments.head())
 
 **Question 1: Query vs Boolean Indexing**
 - What's the difference between using `.query('is_late == True')` and `[df['is_late'] == True]`?
+the difference is that .query() is a more readable way to query the data, and [df['is_late'] == True] is a more verbose way to query the data.
 - Which approach is more readable and why?
-
+.query() is more readable because it is a more concise way to query the data.
 **Question 2: Additional Row Querying**
 - Can you show an example of using a variable like `late_threshold` to query rows for shipments that are at least `late_threshold` days late, e.g. what if you wanted to query rows for shipments that are at least 5 days late?
+```python
+late_threshold = 5
+late_shipments = shipments_with_lateness.query(f'days_late >= {late_threshold}')
+```
 :::
 
 ::: {.callout-tip}
@@ -363,12 +373,15 @@ print("Remaining columns:", clean_shipments.columns.tolist())
 
 **Question 1: Drop vs Filter Strategies**
 - What's the difference between `.drop(columns=['quantity'])` and `.filter()` with a list of columns you want to keep?
+the difference is that .drop(columns=['quantity']) is a more concise way to drop the quantity column, and .filter() is a more verbose way to drop the quantity column.
 - When would you choose to drop columns vs filter to keep specific columns?
-
+you would choose to drop columns if you want to remove the column from the dataframe, and you would choose to filter if you want to keep the column in the dataframe.
 **Question 2: Handling Missing Data**
 - What happens if you use `.dropna()` without specifying `subset`? How is this different from `.dropna(subset=['plannedShipDate', 'actualShipDate'])`?
+if you use .dropna() without specifying `subset`, it will drop all rows with any missing values in any column.
+if you use .dropna(subset=['plannedShipDate', 'actualShipDate']), it will drop all rows with missing values in the plannedShipDate or actualShipDate columns.
 - Why might you want to be selective about which columns to check for missing values?
-
+you might want to be selective about which columns to check for missing values if you only want to drop rows with missing values in certain columns.
 :::
 
 ::: {.callout-tip}
@@ -407,12 +420,18 @@ print(sorted_by_lateness[['shipID', 'partID', 'days_late', 'is_late']].head(10))
 
 **Question 1: Sorting Strategies**
 - What's the difference between `ascending=False` and `ascending=True` in sorting?
+the difference is that ascending=False will sort the data in descending order, and ascending=True will sort the data in ascending order.
 - How would you sort by multiple columns (e.g., first by `is_late`, then by `days_late`)?
-
+you would sort by multiple columns by using the following code:
+```python
+sorted_by_multiple_columns = shipments_with_lateness.sort_values(['is_late', 'days_late'], ascending=[False, True])
+```
 **Question 2: Index Management**
 - Why do we use `.reset_index(drop=True)` after sorting?
+we use .reset_index(drop=True) after sorting to reset the index of the dataframe to be sequential.
 - What happens to the original index when you sort? Why might this be problematic?
-
+the original index is lost when you sort the dataframe.
+this is problematic because you may need to use the original index for other operations.
 :::
 
 ::: {.callout-tip}
@@ -458,7 +477,8 @@ print(f"\nOn-time delivery rate: {on_time_rate:.1f}%")
 
 **Question 1: Boolean Aggregation**
 - Why does `sum()` work on boolean values? What does it count?
-
+sum() works on boolean values because it counts the number of True values in the column.
+it counts the number of True values in the column.
 :::
 
 ::: {.callout-tip}
@@ -494,11 +514,16 @@ print(shipments_with_category['prodCategory'].value_counts())
 
 **Question 1: Join Types and Data Loss**
 - Why does your professor think we should use `how='left'` in most cases? 
+because left join will keep all the rows from the left dataframe, and only keep the rows from the right dataframe that have matching values in the key column.
 - How can you check if any shipments were lost during the merge?
+you can check if any shipments were lost during the merge by using the following code:
+```python
+shipments_with_category = shipments_with_category[shipments_with_category['prodCategory'].notna()]
+```
 
 **Question 2: Key Column Matching**
 - What happens if there are duplicate `partID` values in the `product_line_df`?
-
+if there are duplicate `partID` values in the `product_line_df`, the merge will only keep the first occurrence of the `partID` value.
 :::
 
 ::: {.callout-tip}
@@ -542,9 +567,12 @@ print(service_by_category)
 **Question 1: GroupBy Mechanics**
 - What does `.groupby('prodCategory')` actually do? How does it "split" the data?
 - Why do we need to use `.agg()` after grouping? What happens if you don't?
-
+we need to use .agg() after grouping to apply a function to the grouped data.
+if you don't use .agg(), the grouped data will not be aggregated.
 **Question 2: Multi-Level Grouping**
 - Explore grouping by `['shipID', 'prodCategory']`?  What question does this answer versus grouping by `'prodCategory'` alone?  (HINT: There may be many rows with identical shipID's due to a particular order having multiple partID's.)
+grouping by `['shipID', 'prodCategory']` will answer the question of how often do orders include products from more than one category.
+grouping by `'prodCategory'` alone will answer the question of how often do orders include products from a particular category.
 :::
 
 ::: {.callout-tip}
@@ -593,8 +621,11 @@ print(f"Percentage with multiple categories: {multi_category_shipments['shipID']
 
 **Question 1: Business Question Analysis**
 - What business question does this comprehensive analysis answer?
+this comprehensive analysis answers the question of how often do orders include products from more than one category.
 - How does grouping by `['shipID', 'prodCategory']` differ from grouping by just `'prodCategory'`?
+grouping by `['shipID', 'prodCategory']` will answer the question of how often do orders include products from more than one category.
 - What insights can ZappTech's management gain from knowing the percentage of multi-category shipments?
+ZappTech's management can gain insights from knowing the percentage of multi-category shipments to improve their service level.
 :::
 
 ::: {.callout-tip}
